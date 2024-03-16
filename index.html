@@ -464,6 +464,15 @@
     s.src="https://salesiq.zohopublic.com/widget";
     t=d.getElementsByTagName("script")[0];
     t.parentNode.insertBefore(s,t);
+    document.getElementById("show-form-btn").addEventListener("click", function() {
+    var formContainer = document.getElementById("form-container");
+    if (formContainer.style.display === "block") {
+        formContainer.style.display = "none";
+    } else {
+        formContainer.style.display = "block";
+    }
+});
+
 </script>
 </body>
 </html>
