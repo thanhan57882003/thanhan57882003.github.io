@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Cloud Vision API - Nhận diện mã QR</title>
+</head>
+<body>
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="processImage()">Nhận diện mã QR</button>
+    <div id="qrCodeResult"></div>
+
+    <script>
+        function processImage() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Vui lòng chọn một hình ảnh.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Image = event.target.result;
+                callCloudVisionAPI(base64Image.split(',')[1]);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function callCloudVisionAPI(base64Image) {
+            const apiKey = 'AIzaSyBh11_P-Aq9JZcfGeZF0m8RKw_mfwC1Zy4'; // Thay YOUR_API_KEY bằng API key của bạn
+            const endpoint = 'https://vision.googleapis.com/v1/images:annotate?key=' + apiKey;
+
+            const requestData = {
+                requests: [
+                    {
+                        image: {
+                            content: base64Image
+                        },
+                        features: [
+                            {
+                                type: 'TEXT_DETECTION'
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.responses && data.responses[0].textAnnotations) {
+                    const qrCodeContent = data.responses[0].textAnnotations[0].description;
+                    document.getElementById('qrCodeResult').innerText = 'Nội dung mã QR: ' + qrCodeContent;
+                } else {
+                    document.getElementById('qrCodeResult').innerText = 'Không tìm thấy mã QR trong hình ảnh.';
+                }
+            })
+            .catch(error => {
+                console.error('Đã xảy ra lỗi:', error);
+            });
+        }
+    </script>
+</body>
+</html>
